@@ -74,6 +74,10 @@ class MyDraggableTarget<T> extends StatefulWidget {
       : assert(data != null),
         super(key: key);
 
+  remove(int index) {
+    print("remove " + index.toString());
+  }
+
   @override
   State createState() =>
       MyDraggableTargetState(index: this.index, data: this.data);
@@ -87,45 +91,51 @@ class MyDraggableTargetState extends State<MyDraggableTarget> {
   @override
   Widget build(BuildContext context) {
     return LongPressDraggable(
-        data: data,
-        ignoringFeedbackSemantics: false,
-        axis: Axis.vertical,
-        child: DragTarget(
-          builder: (context, candidateData, rejectedData) {
-            return Container(
-              height: 80.0,
-              child: RawMaterialButton(
-                child: Text(data),
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      new MaterialPageRoute(
-                          builder: (context) => new EditPage(data)));
-                },
-              ),
-            );
-          },
-          onAccept: (acceptData) {
-            print("$acceptData is onaccept, index = $index");
-            setState(() {
-              data = acceptData;
-            });
-          },
-          onLeave: (data) {
-            print("$data is onLeave");
-          },
-          onWillAccept: (data) {
-            print("$data is onWillAccept");
-            return data != null;
-          },
-        ),
-        feedback: Container(
+      data: data,
+      ignoringFeedbackSemantics: false,
+      axis: Axis.vertical,
+      child: DragTarget(
+        builder: (context, candidateData, rejectedData) {
+          return Container(
             height: 80.0,
-            width: MediaQuery.of(context).size.width,
-            child: Card(
-                child: Container(
-              height: 80.0,
+            child: RawMaterialButton(
               child: Text(data),
-            ))));
+              onPressed: () {
+                Navigator.push<String>(
+                        context,
+                        new MaterialPageRoute(
+                            builder: (context) => new EditPage(data)))
+                    .then((String value) {
+                  data = value;
+                });
+              },
+            ),
+          );
+        },
+        onAccept: (acceptData) {
+          setState(() {
+            data = acceptData;
+          });
+        },
+        onLeave: (data) {
+          print("$data is onLeave");
+        },
+        onWillAccept: (data) {
+          print("$data is onWillAccept");
+          return data != null;
+        },
+      ),
+      feedback: Container(
+          height: 80.0,
+          width: MediaQuery.of(context).size.width,
+          child: Card(
+              child: Container(
+            height: 80.0,
+            child: Text(data),
+          ))),
+      onDragStarted: () {
+        widget.remove(index);
+      },
+    );
   }
 }

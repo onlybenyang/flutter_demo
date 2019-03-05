@@ -2,8 +2,42 @@ import 'package:flutter/material.dart';
 
 class EditPage extends StatelessWidget {
   var data;
+  final control = TextEditingController();
   EditPage(data) {
     this.data = data;
+    control.text = this.data;
+    control.selection = TextSelection(
+        baseOffset: this.data.toString().length,
+        extentOffset: this.data.toString().length);
+  }
+
+  onTextChange(String text) {
+    this.data = text;
+  }
+
+  Widget buildView(BuildContext context) {
+    Widget textFieldView = new Container(
+      margin: EdgeInsets.only(top: 16.0),
+      child: TextField(
+        onChanged: (text) => this.onTextChange(text),
+        maxLines: null,
+        maxLength: 512,
+        autofocus: true,
+        controller: control,
+        decoration: InputDecoration(border: OutlineInputBorder()),
+      ),
+    );
+
+    Widget submitButton = Center(
+        child: RaisedButton(
+            child: Text("submit"),
+            onPressed: () {
+              Navigator.pop(context, this.data);
+            }));
+
+    return Column(
+      children: <Widget>[textFieldView, submitButton],
+    );
   }
 
   @override
@@ -12,14 +46,7 @@ class EditPage extends StatelessWidget {
       appBar: new AppBar(
         title: new Text("Second Screen"),
       ),
-      body: new Center(
-        child: new RaisedButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: new Text('Go back! ' + this.data),
-        ),
-      ),
+      body: buildView(context),
     );
   }
 }
